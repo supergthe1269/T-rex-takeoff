@@ -14,19 +14,19 @@ const gameOverScreen = document.getElementById('game-over-screen');
 let jumpSound = new Audio();
 let collectSound = new Audio();
 let bgMusic = new Audio();
-let gameOverSound = new Audio(); // 1. New Audio Object
+let gameOverSound = new Audio(); 
 
 try {
     jumpSound.src = 'assets/jump.mp3';
     collectSound.src = 'assets/powerup.mp3';
     bgMusic.src = 'assets/bg-music.mp3';
-    gameOverSound.src = 'assets/game-over.mp3'; // 2. Load the file
+    gameOverSound.src = 'assets/game-over.mp3'; 
 
     // Volume Settings
     jumpSound.volume = 0.3;
     collectSound.volume = 0.4;
     bgMusic.volume = 0.2; 
-    gameOverSound.volume = 0.4; // Slightly louder than BG music
+    gameOverSound.volume = 0.4; 
 
     bgMusic.loop = true;  
 } catch (e) {
@@ -50,7 +50,7 @@ let slowTimer = 0;
 // --- DINO OBJECT ---
 const dino = {
     x: 50, y: 200, width: 40, height: 40, dy: 0,
-    jumpPower: 15, flapPower: 7, gravity: 0.6,
+    jumpPower: 13, flapPower: 8, gravity: 0.6,
     grounded: false, mode: 'ground',
     
     draw: function() {
@@ -281,8 +281,20 @@ function checkCollision() {
 function updateUI() {
     scoreEl.innerText = score;
     modeEl.innerText = dino.mode.toUpperCase();
-    if (isInverted) document.body.style.backgroundColor = '#400'; 
-    else document.body.style.backgroundColor = '#202028';
+
+    // 2. Handle Inverted Visuals
+    if (isInverted) {
+        document.body.style.backgroundColor = '#500'; 
+
+        ctx.save();
+        ctx.fillStyle = 'red';
+        ctx.font = '20px "Press Start 2P", cursive, Arial'; 
+        ctx.textAlign = 'center';
+        ctx.fillText("⚠ GRAVITY INVERTED ⚠", canvas.width/2, 50);
+        ctx.restore();
+    } else {
+        document.body.style.backgroundColor = '#202028'; 
+    }
 }
 
 // --- INPUTS ---

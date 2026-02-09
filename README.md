@@ -44,3 +44,5 @@ Between **Score 10 and 20**, gravity flips! The ground becomes the ceiling. You 
 └── assets/         # Folder for audio files (Optional)
     ├── jump.mp3    # Jump sound effect
     └── powerup.mp3 # Power-up sound effect
+    └── bg-music.mp3 # Background music
+    └── game-over.mp3 # Game over sound effect

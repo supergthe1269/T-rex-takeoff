@@ -43,4 +43,4 @@ Between **Score 10 and 20**, gravity flips! The ground becomes the ceiling. You 
 ├── script.js       # Game logic, physics engine, and procedural rendering
 └── assets/         # Folder for audio files (Optional)
     ├── jump.mp3    # Jump sound effect
-    └── collect.mp3 # Power-up sound effect
+    └── powerup.mp3 # Power-up sound effect

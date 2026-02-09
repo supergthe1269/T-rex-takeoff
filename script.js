@@ -11,15 +11,24 @@ const startScreen = document.getElementById('start-screen');
 const gameOverScreen = document.getElementById('game-over-screen');
 
 // --- AUDIO SETUP ---
-// We wrap this in a try-catch in case the files are missing, so the game doesn't crash
 let jumpSound = new Audio();
 let collectSound = new Audio();
+let bgMusic = new Audio();
+let gameOverSound = new Audio(); // 1. New Audio Object
 
 try {
     jumpSound.src = 'assets/jump.mp3';
     collectSound.src = 'assets/powerup.mp3';
+    bgMusic.src = 'assets/bg-music.mp3';
+    gameOverSound.src = 'assets/game-over.mp3'; // 2. Load the file
+
+    // Volume Settings
     jumpSound.volume = 0.3;
     collectSound.volume = 0.4;
+    bgMusic.volume = 0.2; 
+    gameOverSound.volume = 0.4; // Slightly louder than BG music
+
+    bgMusic.loop = true;  
 } catch (e) {
     console.log("Audio files not found, playing without sound.");
 }
@@ -47,14 +56,14 @@ const dino = {
     draw: function() {
         ctx.save();
         
-        // 1. Handle Inverted Gravity Rotation
+        // Inverted Gravity Rotation
         if (isInverted) {
             ctx.translate(this.x + this.width/2, this.y + this.height/2);
             ctx.scale(1, -1);
             ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
         }
 
-        // 2. Draw Shield Glow
+        // Shield Glow
         if (hasShield) {
             ctx.shadowBlur = 20; ctx.shadowColor = "cyan";
             ctx.strokeStyle = 'cyan'; ctx.lineWidth = 3;
@@ -64,23 +73,16 @@ const dino = {
             ctx.shadowBlur = 0;
         }
 
-        // 3. Draw Dino Body (Procedural Art)
-        ctx.fillStyle = (this.mode === 'ground') ? '#5D9C59' : '#5DA7DB'; // Green (Ground) vs Blue (Air)
-        
-        // Main Body
+        // Dino Body (Procedural Art)
+        ctx.fillStyle = (this.mode === 'ground') ? '#5D9C59' : '#5DA7DB'; 
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        
-        // Head (A separate block on top right)
-        ctx.fillRect(this.x + 20, this.y - 10, 30, 20);
-        
-        // Eye
+        ctx.fillRect(this.x + 20, this.y - 10, 30, 20); // Head
         ctx.fillStyle = 'white';
-        ctx.fillRect(this.x + 35, this.y - 5, 5, 5);
+        ctx.fillRect(this.x + 35, this.y - 5, 5, 5); // Eye
         
-        // Wing (Only visible in Air Mode)
         if (this.mode === 'air') {
             ctx.fillStyle = 'white';
-            ctx.fillRect(this.x - 5, this.y + 15, 25, 10);
+            ctx.fillRect(this.x - 5, this.y + 15, 25, 10); // Wing
         }
 
         ctx.restore();
@@ -88,7 +90,7 @@ const dino = {
     update: function() {
         this.y += this.dy;
         
-        // Physics Logic
+        // Physics
         if (!isInverted) {
             if (this.y + this.height < canvas.height) { this.dy += this.gravity; this.grounded = false; }
             else { this.dy = 0; this.grounded = true; this.y = canvas.height - this.height; }
@@ -104,7 +106,6 @@ const dino = {
         let jP = Math.abs(this.jumpPower);
         let fP = Math.abs(this.flapPower);
         
-        // Play sound if loaded
         if (jumpSound.readyState >= 2) jumpSound.cloneNode().play().catch(()=>{});
 
         if (!isInverted) {
@@ -130,7 +131,6 @@ class Obstacle {
         this.isQuantum = (score > 15 && Math.random() > 0.5); 
         this.isMoving = (score > 5 && Math.random() < 0.3);
         
-        // Decide spawn location (Ground vs Air)
         let isGroundSpawn = Math.random() < 0.6;
         this.type = isGroundSpawn ? 'cactus' : 'bird';
         
@@ -139,7 +139,7 @@ class Obstacle {
         
         this.originalY = this.y;
         this.color = this.type === 'cactus' ? '#8B4513' : '#FF4444';
-        if (this.isQuantum) this.color = '#800080'; // Purple for Quantum
+        if (this.isQuantum) this.color = '#800080'; 
     }
     update() {
         this.x -= gameSpeed;
@@ -148,34 +148,27 @@ class Obstacle {
         this.draw();
     }
     draw() {
-        // Quantum Effect (Invisibility)
         if (this.isQuantum) {
             let distance = this.x - dino.x;
             if (distance > 250) ctx.globalAlpha = 0;
             else if (distance > 150) ctx.globalAlpha = 0.3;
             else ctx.globalAlpha = 1.0;
         }
-
-        // Draw Shapes based on type
         if (this.type === 'cactus') {
-            // Draw Cactus (3 prongs)
             ctx.fillStyle = this.color;
-            ctx.fillRect(this.x + 10, this.y, 20, 40); // Center
-            ctx.fillRect(this.x, this.y + 10, 10, 20); // Left arm
-            ctx.fillRect(this.x + 30, this.y + 10, 10, 20); // Right arm
+            ctx.fillRect(this.x + 10, this.y, 20, 40); 
+            ctx.fillRect(this.x, this.y + 10, 10, 20); 
+            ctx.fillRect(this.x + 30, this.y + 10, 10, 20); 
         } else {
-            // Draw Bird (Triangle-ish)
             ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.moveTo(this.x, this.y);
             ctx.lineTo(this.x + 40, this.y + 20);
             ctx.lineTo(this.x, this.y + 40);
             ctx.fill();
-            // Wing flap visual
             ctx.fillStyle = 'white';
             ctx.fillRect(this.x + 10, this.y + 15, 10, 10);
         }
-        
         ctx.globalAlpha = 1.0;
     }
 }
@@ -198,7 +191,6 @@ class PowerUp {
         ctx.beginPath(); 
         ctx.arc(this.x + 15, this.y + 15, 15, 0, Math.PI*2); 
         ctx.fill();
-        
         ctx.fillStyle = 'black'; 
         ctx.font = '12px Arial';
         ctx.fillText(this.type === 'shield' ? 'S' : 'T', this.x + 11, this.y + 20);
@@ -206,10 +198,35 @@ class PowerUp {
 }
 
 // --- LOGIC ---
+
 function startGame() {
     startScreen.classList.remove('active');
     gameRunning = true;
+    
+    // Play Music
+    if (bgMusic.readyState >= 2) {
+        bgMusic.currentTime = 0; 
+        bgMusic.play().catch(e => console.log("Music failed to start", e));
+    }
+    
     animate();
+}
+
+function stopGame() {
+    isGameOver = true;
+    gameRunning = false;
+    
+    // 3. Stop BG Music & Play Game Over
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+    
+    if (gameOverSound.readyState >= 2) {
+        gameOverSound.currentTime = 0;
+        gameOverSound.play().catch(e => console.log("Game Over sound failed", e));
+    }
+    
+    finalScoreEl.innerText = score;
+    gameOverScreen.classList.add('active'); 
 }
 
 function handleObstacles() {
@@ -277,9 +294,13 @@ window.addEventListener('keydown', function(e) {
     if (!gameRunning) return; 
     
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') dino.action();
-    if (e.key === ' ') dino.toggleMode();
+    if (e.key === ' ') {
+        dino.toggleMode();
+        e.preventDefault();
+    }
 });
 
+// Touch support
 document.getElementById('start-btn').addEventListener('click', startGame);
 
 // --- LOOP ---
@@ -298,10 +319,7 @@ function animate() {
     updateUI();
 
     if (checkCollision()) {
-        isGameOver = true;
-        gameRunning = false;
-        finalScoreEl.innerText = score;
-        gameOverScreen.classList.add('active'); 
+        stopGame();
     } else {
         gameFrame++;
         requestAnimationFrame(animate);

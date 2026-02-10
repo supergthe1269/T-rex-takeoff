@@ -14,7 +14,7 @@ const gameOverScreen = document.getElementById('game-over-screen');
 // --- AUDIO SETUP ---
 const sounds = {
     jump: new Audio('assets/jump.mp3'),
-    collect: new Audio('assets/collect.mp3'),
+    collect: new Audio('assets/powerup.mp3'),
     bg: new Audio('assets/bg-music.mp3'),
     over: new Audio('assets/game-over.mp3')
 };
@@ -490,4 +490,3 @@ function animate() {
         requestAnimationFrame(animate);
     }
 }
-

@@ -58,6 +58,7 @@ let shieldTimer = 0;
 let ghostTimer = 0;
 
 // --- DINO OBJECT ---
+// --- DINO OBJECT ---
 const dino = {
     x: 50,
     y: 200,
@@ -65,53 +66,37 @@ const dino = {
     height: 40,
     dy: 0,
     jumpPower: 13,
-    flapPower: 9,
+    flapPower: 8,
     gravity: 0.6,
     grounded: false,
-    mode: 'ground', // 'ground' or 'air'
+    mode: 'ground', 
 
     draw: function() {
         ctx.save();
 
-        // 1. Handle Inverted Rotation
         if (isInverted) {
             ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
             ctx.scale(1, -1);
             ctx.translate(-(this.x + this.width / 2), -(this.y + this.height / 2));
         }
 
-        // 2. Ghost Visual (Transparency)
-        if (isGhost) {
-            ctx.globalAlpha = 0.5;
-        }
+        if (isGhost) ctx.globalAlpha = 0.5;
 
-        // 3. Shield Visual (Glow)
         if (hasShield) {
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = "cyan";
-            ctx.strokeStyle = 'cyan';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 35, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.shadowBlur = 20; ctx.shadowColor = "cyan"; ctx.strokeStyle = 'cyan'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(this.x + this.width / 2, this.y + this.height / 2, 35, 0, Math.PI * 2);
+            ctx.stroke(); ctx.shadowBlur = 0;
         }
 
-        // 4. Draw Body
         ctx.fillStyle = (this.mode === 'ground') ? '#5D9C59' : '#5DA7DB';
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        
-        // Head
-        ctx.fillRect(this.x + 20, this.y - 10, 30, 20);
-        
-        // Eye
+        ctx.fillRect(this.x + 20, this.y - 10, 30, 20); // Head
         ctx.fillStyle = 'white';
-        ctx.fillRect(this.x + 35, this.y - 5, 5, 5);
+        ctx.fillRect(this.x + 35, this.y - 5, 5, 5); // Eye
 
-        // Wing (Only in Air Mode)
         if (this.mode === 'air') {
             ctx.fillStyle = 'white';
-            ctx.fillRect(this.x - 5, this.y + 15, 25, 10);
+            ctx.fillRect(this.x - 5, this.y + 15, 25, 10); // Wing
         }
 
         ctx.restore();
@@ -120,9 +105,7 @@ const dino = {
     update: function() {
         this.y += this.dy;
 
-        // Physics Logic
         if (!isInverted) {
-            // NORMAL GRAVITY
             if (this.y + this.height < canvas.height) {
                 this.dy += this.gravity;
                 this.grounded = false;
@@ -131,13 +114,8 @@ const dino = {
                 this.grounded = true;
                 this.y = canvas.height - this.height;
             }
-            // Ceiling Cap
-            if (this.y < 0) {
-                this.y = 0;
-                this.dy = 0;
-            }
+            if (this.y < 0) { this.y = 0; this.dy = 0; }
         } else {
-            // INVERTED GRAVITY
             if (this.y > 0) {
                 this.dy -= this.gravity;
                 this.grounded = false;
@@ -146,7 +124,6 @@ const dino = {
                 this.grounded = true;
                 this.y = 0;
             }
-            // Floor Cap
             if (this.y + this.height > canvas.height) {
                 this.y = canvas.height - this.height;
                 this.dy = 0;
@@ -157,17 +134,14 @@ const dino = {
 
     action: function() {
         playSound(sounds.jump);
-
         let jumpStrength = this.mode === 'ground' ? this.jumpPower : this.flapPower;
 
         if (!isInverted) {
-            // Normal Jump (Up is negative Y)
             if ((this.mode === 'ground' && this.grounded) || this.mode === 'air') {
                 this.dy = -jumpStrength;
                 this.grounded = false;
             }
         } else {
-            // Inverted Jump (Down is positive Y)
             if ((this.mode === 'ground' && this.grounded) || this.mode === 'air') {
                 this.dy = jumpStrength;
                 this.grounded = false;
@@ -176,9 +150,19 @@ const dino = {
     },
 
     toggleMode: function() {
-        this.mode = (this.mode === 'ground') ? 'air' : 'ground';
-        // Small pop to indicate switch
-        this.dy = isInverted ? 5 : -5;
+        if (this.mode === 'ground') {
+            // Switching TO Air Mode
+            this.mode = 'air';
+            this.dy = isInverted ? 5 : -5;
+            
+            // SAFETY HOP: Instantly move Dino away from the spikes!
+            // If Normal: Move Up (-30). If Inverted: Move Down (+30)
+            this.y += isInverted ? 30 : -30;
+            this.grounded = false;
+        } else {
+            // Switching TO Ground Mode
+            this.mode = 'ground';
+        }
     }
 };
 
@@ -506,4 +490,3 @@ function animate() {
         requestAnimationFrame(animate);
     }
 }
-

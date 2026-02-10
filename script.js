@@ -65,7 +65,7 @@ const dino = {
     height: 40,
     dy: 0,
     jumpPower: 13,
-    flapPower: 8,
+    flapPower: 9,
     gravity: 0.6,
     grounded: false,
     mode: 'ground', // 'ground' or 'air'
@@ -506,3 +506,4 @@ function animate() {
         requestAnimationFrame(animate);
     }
 }
+

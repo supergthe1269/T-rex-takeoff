@@ -66,7 +66,7 @@ const dino = {
     height: 40,
     dy: 0,
     jumpPower: 13,
-    flapPower: 8,
+    flapPower: 9,
     gravity: 0.6,
     grounded: false,
     mode: 'ground', 
@@ -157,7 +157,7 @@ const dino = {
             
             // SAFETY HOP: Instantly move Dino away from the spikes!
             // If Normal: Move Up (-30). If Inverted: Move Down (+30)
-            this.y += isInverted ? 30 : -30;
+            this.y += isInverted ? 40 : -40;
             this.grounded = false;
         } else {
             // Switching TO Ground Mode
@@ -490,3 +490,4 @@ function animate() {
         requestAnimationFrame(animate);
     }
 }
+
